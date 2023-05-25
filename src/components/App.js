@@ -77,7 +77,7 @@ function App() {
       .catch((err) => {
         console.log(err);
       });
-  }  
+  }
 
   const handleCardDelete = (card) => {
     apiConfig.deleteCard(card._id)
@@ -155,101 +155,101 @@ function App() {
         }
       });
   };
-  
+
   const handleLogin = (email, password) => {
     return authorize(email, password)
-        .then((data) => {
-            if (data.token) {
-                localStorage.setItem('jwt', data.token);
-                setUserEmail(email);
-                setLoggedIn(true);
-                console.log("Navigate вызывается");
-                navigate('/');
-                return data;
-            }
-        })
-        .catch((err) => {
-          if (err.message === "Не передано одно из полей") {
-            console.log("Пожалуйста, убедитесь, что вы ввели email и пароль.");
-          } else if (err.message === "Пользователь с email не найден") {
-            console.log("Неверный email. Пожалуйста, проверьте и попробуйте еще раз.");
-          } else {
-            console.log(err);
-          }
-        });
-};  
-
-const handleCheckToken = () => {
-  const token = localStorage.getItem('jwt');
-  if (token) {
-      return checkToken(token)
-          .then((res) => {
-              if (res) {
-                  setLoggedIn(true);
-                  setShouldNavigate(true);
-                  return apiConfig.getUserInfo();
-              }
-          })
-          .then((userInfo) => {
-            setCurrentUser(userInfo);
-          })
-          .catch((err) => console.log(err));
-  }
-}
-
-
-React.useEffect(() => {
-  const token = localStorage.getItem('jwt');
-  if (token) {
-    checkToken(token)
-      .then((res) => {
-        if (res && !loggedIn) { 
+      .then((data) => {
+        if (data.token) {
+          localStorage.setItem('jwt', data.token);
+          setUserEmail(email);
           setLoggedIn(true);
-          setUserEmail(res.email);
+          console.log("Navigate вызывается");
+          navigate('/');
+          return data;
         }
       })
       .catch((err) => {
-        if (loggedIn) {
-          setLoggedIn(false);
-          setUserEmail('');
+        if (err.message === "Не передано одно из полей") {
+          console.log("Пожалуйста, убедитесь, что вы ввели email и пароль.");
+        } else if (err.message === "Пользователь с email не найден") {
+          console.log("Неверный email. Пожалуйста, проверьте и попробуйте еще раз.");
+        } else {
+          console.log(err);
         }
       });
+  };
+
+  const handleCheckToken = () => {
+    const token = localStorage.getItem('jwt');
+    if (token) {
+      return checkToken(token)
+        .then((res) => {
+          if (res) {
+            setLoggedIn(true);
+            setShouldNavigate(true);
+            return apiConfig.getUserInfo();
+          }
+        })
+        .then((userInfo) => {
+          setCurrentUser(userInfo);
+        })
+        .catch((err) => console.log(err));
+    }
   }
-}, []);
 
 
-    return (
+  React.useEffect(() => {
+    const token = localStorage.getItem('jwt');
+    if (token) {
+      checkToken(token)
+        .then((res) => {
+          if (res && !loggedIn) {
+            setLoggedIn(true);
+            setUserEmail(res.email);
+          }
+        })
+        .catch((err) => {
+          if (loggedIn) {
+            setLoggedIn(false);
+            setUserEmail('');
+          }
+        });
+    }
+  }, []);
+
+
+  return (
     <CurrentUserContext.Provider value={currentUser}>
-        <div className="page">
-          <Header loggedIn={loggedIn} userEmail={userEmail} />
-          <Routes>
-  <Route path="/" element={<ProtectedRoute component={Main} 
-    cards={cards}
-    onEditProfile={handleEditProfileClick}
-    onAddPlace={handleAddPlaceClick}
-    onEditAvatar={handleEditAvatarClick}
-    onCardClick={handleCardClick}
-    onCardLike={handleCardLike}
-    onCardDelete={handleCardDelete}
-    isLoggedIn={loggedIn} 
-  />} />
-  <Route path="/sign-up" element={<Register onRegister={handleRegister} />} />
-  <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
-</Routes>
-          {loggedIn && <Footer />}
-          <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
-          <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit} />
-          <PopupWithForm title='Вы уверены?' name='delete' buttonText="Да">
+      <div className="page">
+        <Header loggedIn={loggedIn} userEmail={userEmail} />
+        <Routes>
+          <Route path="/" element={<ProtectedRoute component={Main}
+            cards={cards}
+            onEditProfile={handleEditProfileClick}
+            onAddPlace={handleAddPlaceClick}
+            onEditAvatar={handleEditAvatarClick}
+            onCardClick={handleCardClick}
+            onCardLike={handleCardLike}
+            onCardDelete={handleCardDelete}
+            loggedIn={loggedIn}
+          />} />
+          <Route path="/sign-up" element={<Register onRegister={handleRegister} />} />
+          <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
+        </Routes>
+        {loggedIn && <Footer />}
+        <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
+        <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit} />
+        <PopupWithForm title='Вы уверены?' name='delete' buttonText="Да">
           // тут надо доделать
-          </PopupWithForm>
-          <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
-          <ImagePopup card={selectedCard} onClose={closeAllPopups} />
-          <InfoTooltip 
-        isOpen={isInfoTooltipOpen} 
-        onClose={closeAllPopups} 
-        message={infoTooltipMessage}
-        isSuccessful={isSuccessful}
-      />
+        </PopupWithForm>
+        <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
+        <ImagePopup card={selectedCard} onClose={closeAllPopups} />
+        <InfoTooltip
+          isOpen={isInfoTooltipOpen}
+          onClose={closeAllPopups}
+          message={infoTooltipMessage}
+          isSuccessful={isSuccessful}
+        />
       </div>
     </CurrentUserContext.Provider>
   );

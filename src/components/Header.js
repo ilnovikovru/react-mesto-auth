@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../images/logo.svg';
 
-function Header({loggedIn, userEmail}) {
+function Header({ loggedIn, userEmail }) {
   const location = useLocation();
 
   const renderLoginControl = () => {

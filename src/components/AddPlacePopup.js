@@ -8,7 +8,7 @@ function AddPlacePopup(props) {
   React.useEffect(() => {
     setName('');
     setLink('');
-}, [props.isOpen]);
+  }, [props.isOpen]);
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -21,7 +21,7 @@ function AddPlacePopup(props) {
   const handleSubmit = (e) => {
     e.preventDefault();
     props.onAddPlace({ name, link });
-  
+
     setName('');
     setLink('');
   };
