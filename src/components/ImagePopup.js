@@ -1,5 +1,9 @@
+import { usePopupClose } from '../hooks/usePopupClose';
+
 function ImagePopup({ card, onClose }) {
   const isOpen = card ? "popup_opened" : "";
+
+  usePopupClose(isOpen, onClose);
 
   return (
     <div className={`popup popup_photo ${isOpen}`}>

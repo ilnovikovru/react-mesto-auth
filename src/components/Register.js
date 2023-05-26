@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function Register({ onRegister }) {
   const [email, setEmail] = useState('');
@@ -28,7 +29,7 @@ function Register({ onRegister }) {
           <input id="input-email" placeholder="Email" className="sign__input" name="email" type="email" value={email} onChange={handleEmailChange} required />
           <input id="input-password" placeholder="Пароль" className="sign__input" name="password" type="password" value={password} onChange={handlePasswordChange} required />
           <button type="submit" form="form_login" className="sign__button">Зарегистрироваться</button>
-          <a href="/sign-in" className="sign__caption">Уже зарегистрированы? Войти</a>
+          <Link to="/sign-in" className="sign__caption">Уже зарегистрированы? Войти</Link>
         </form>
       </div>
     </>

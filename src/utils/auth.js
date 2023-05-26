@@ -10,35 +10,36 @@ const checkResponse = (res) => {
     }
 }
 
+function request(endpoint, options) {
+    return fetch(`${BASE_URL}${endpoint}`, options).then(checkResponse);
+}
+
 export const register = (email, password) => {
-    return fetch(`${BASE_URL}/signup`, {
+    return request('/signup', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ email, password })
-    })
-    .then(checkResponse);
+    });
 };
 
 export const authorize = (email, password) => {
-    return fetch(`${BASE_URL}/signin`, {
+    return request('/signin', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ email, password })
-    })
-    .then(checkResponse);
+    });
 };
 
 export const checkToken = (token) => {
-    return fetch(`${BASE_URL}/users/me`, {
+    return request('/users/me', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         }
-    })
-    .then(checkResponse);
+    });
 };

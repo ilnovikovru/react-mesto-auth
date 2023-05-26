@@ -8,7 +8,6 @@ import PopupWithForm from './PopupWithForm';
 import ImagePopup from './ImagePopup';
 import apiConfig from '../utils/api';
 import { register, authorize, checkToken } from '../utils/auth';
-import CurrentUserContext from '../contexts/CurrentUserContext';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
@@ -16,6 +15,7 @@ import Register from './Register';
 import Login from './Login';
 import ProtectedRoute from './ProtectedRoute';
 import InfoTooltip from './InfoTooltip';
+import { CurrentUserContext, AppContext } from '../contexts/CurrentUserContext';
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
@@ -31,6 +31,7 @@ function App() {
   const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
   const [infoTooltipMessage, setInfoTooltipMessage] = React.useState("");
   const [isSuccessful, setIsSuccessful] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
     apiConfig.getUserInfo()
@@ -91,14 +92,10 @@ function App() {
   };
 
   const handleUpdateUser = (userData) => {
-    apiConfig.setUserInfo(userData)
-      .then((updatedUser) => {
-        setCurrentUser(updatedUser);
-        closeAllPopups();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    function makeRequest() {
+      return apiConfig.setUserInfo(userData).then(setCurrentUser);
+    }
+    handleSubmit(makeRequest);
   };
 
   const closeAllPopups = () => {
@@ -109,26 +106,44 @@ function App() {
     setSelectedCard(null);
   };
 
-  const handleUpdateAvatar = (avatarData) => {
-    apiConfig.setUserAvatar(avatarData)
-      .then((updatedUser) => {
-        setCurrentUser(updatedUser);
+  const isOpen = isEditAvatarPopupOpen || isEditProfilePopupOpen || isAddPlacePopupOpen || selectedCard;
+
+  React.useEffect(() => {
+    function closeByEscape(evt) {
+      if(evt.key === 'Escape') {
         closeAllPopups();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      }
+    }
+    if(isOpen) {
+      document.addEventListener('keydown', closeByEscape);
+      return () => {
+        document.removeEventListener('keydown', closeByEscape);
+      }
+    }
+  }, [isOpen]);
+
+  const handleUpdateAvatar = (avatarData) => {
+    function makeRequest() {
+      return apiConfig.setUserAvatar(avatarData).then(setCurrentUser);
+    }
+    handleSubmit(makeRequest);
   };
 
+  function handleSubmit(request) {
+    setIsLoading(true);
+    request()
+      .then(closeAllPopups)
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
+  }
+
   const handleAddPlaceSubmit = (newCard) => {
-    apiConfig.addCard(newCard)
-      .then((newCard) => {
+    function makeRequest() {
+      return apiConfig.addCard(newCard).then((newCard) => {
         setCards([newCard, ...cards]);
-        closeAllPopups();
-      })
-      .catch((err) => {
-        console.log(err);
       });
+    }
+    handleSubmit(makeRequest);
   };
 
   const handleRegister = (email, password) => {
@@ -136,7 +151,6 @@ function App() {
       .then((data) => {
         if (data) {
           handleLogin(email, password);
-          setIsInfoTooltipOpen(true);
           setInfoTooltipMessage("Вы успешно зарегистрировались!");
           setIsSuccessful(true);
         }
@@ -144,17 +158,17 @@ function App() {
       .catch((err) => {
         if (err.message === "Некорректно заполнено одно из полей") {
           console.log("Пожалуйста, проверьте введенные данные.");
-          setIsInfoTooltipOpen(true);
-          setInfoTooltipMessage("Что-то пошло не так! Попробуйте ещё раз.");
-          setIsSuccessful(false);
+          setInfoTooltipMessage("Проверьте введенные данные и попробуйте ещё раз.");
         } else {
           console.log(err);
-          setIsInfoTooltipOpen(true);
           setInfoTooltipMessage("Что-то пошло не так! Попробуйте ещё раз.");
-          setIsSuccessful(false);
         }
+        setIsSuccessful(false);
+      })
+      .finally(() => {
+        setIsInfoTooltipOpen(true);
       });
-  };
+  };  
 
   const handleLogin = (email, password) => {
     return authorize(email, password)
@@ -163,7 +177,6 @@ function App() {
           localStorage.setItem('jwt', data.token);
           setUserEmail(email);
           setLoggedIn(true);
-          console.log("Navigate вызывается");
           navigate('/');
           return data;
         }
@@ -179,25 +192,6 @@ function App() {
       });
   };
 
-  const handleCheckToken = () => {
-    const token = localStorage.getItem('jwt');
-    if (token) {
-      return checkToken(token)
-        .then((res) => {
-          if (res) {
-            setLoggedIn(true);
-            setShouldNavigate(true);
-            return apiConfig.getUserInfo();
-          }
-        })
-        .then((userInfo) => {
-          setCurrentUser(userInfo);
-        })
-        .catch((err) => console.log(err));
-    }
-  }
-
-
   React.useEffect(() => {
     const token = localStorage.getItem('jwt');
     if (token) {
@@ -206,6 +200,7 @@ function App() {
           if (res && !loggedIn) {
             setLoggedIn(true);
             setUserEmail(res.email);
+            navigate('/');
           }
         })
         .catch((err) => {
@@ -216,9 +211,11 @@ function App() {
         });
     }
   }, []);
+  
 
 
   return (
+    <AppContext.Provider value={{ isLoading, closeAllPopups }}>
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <Header loggedIn={loggedIn} userEmail={userEmail} />
@@ -252,6 +249,7 @@ function App() {
         />
       </div>
     </CurrentUserContext.Provider>
+    </AppContext.Provider>
   );
 
 
