@@ -3,7 +3,7 @@ export const BASE_URL = 'https://auth.nomoreparties.co';
 const checkResponse = (res) => {
     if (res.ok) {
         return res.json();
-    } else if(res.status === 400){
+    } else if (res.status === 400) {
         throw new Error("Некорректно заполнено одно из полей");
     } else {
         return Promise.reject(`Ошибка: ${res.status}`);

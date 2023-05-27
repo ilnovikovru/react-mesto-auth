@@ -108,20 +108,6 @@ function App() {
 
   const isOpen = isEditAvatarPopupOpen || isEditProfilePopupOpen || isAddPlacePopupOpen || selectedCard;
 
-  React.useEffect(() => {
-    function closeByEscape(evt) {
-      if(evt.key === 'Escape') {
-        closeAllPopups();
-      }
-    }
-    if(isOpen) {
-      document.addEventListener('keydown', closeByEscape);
-      return () => {
-        document.removeEventListener('keydown', closeByEscape);
-      }
-    }
-  }, [isOpen]);
-
   const handleUpdateAvatar = (avatarData) => {
     function makeRequest() {
       return apiConfig.setUserAvatar(avatarData).then(setCurrentUser);
@@ -168,7 +154,7 @@ function App() {
       .finally(() => {
         setIsInfoTooltipOpen(true);
       });
-  };  
+  };
 
   const handleLogin = (email, password) => {
     return authorize(email, password)
@@ -199,7 +185,7 @@ function App() {
         .then((res) => {
           if (res && !loggedIn) {
             setLoggedIn(true);
-            setUserEmail(res.email);
+            setUserEmail(res.data.email);
             navigate('/');
           }
         })
@@ -211,44 +197,44 @@ function App() {
         });
     }
   }, []);
-  
+
 
 
   return (
     <AppContext.Provider value={{ isLoading, closeAllPopups }}>
-    <CurrentUserContext.Provider value={currentUser}>
-      <div className="page">
-        <Header loggedIn={loggedIn} userEmail={userEmail} />
-        <Routes>
-          <Route path="/" element={<ProtectedRoute component={Main}
-            cards={cards}
-            onEditProfile={handleEditProfileClick}
-            onAddPlace={handleAddPlaceClick}
-            onEditAvatar={handleEditAvatarClick}
-            onCardClick={handleCardClick}
-            onCardLike={handleCardLike}
-            onCardDelete={handleCardDelete}
-            loggedIn={loggedIn}
-          />} />
-          <Route path="/sign-up" element={<Register onRegister={handleRegister} />} />
-          <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
-        </Routes>
-        {loggedIn && <Footer />}
-        <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
-        <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit} />
-        <PopupWithForm title='Вы уверены?' name='delete' buttonText="Да">
+      <CurrentUserContext.Provider value={currentUser}>
+        <div className="page">
+          <Header loggedIn={loggedIn} userEmail={userEmail} />
+          <Routes>
+            <Route path="/" element={<ProtectedRoute component={Main}
+              cards={cards}
+              onEditProfile={handleEditProfileClick}
+              onAddPlace={handleAddPlaceClick}
+              onEditAvatar={handleEditAvatarClick}
+              onCardClick={handleCardClick}
+              onCardLike={handleCardLike}
+              onCardDelete={handleCardDelete}
+              loggedIn={loggedIn}
+            />} />
+            <Route path="/sign-up" element={<Register onRegister={handleRegister} />} />
+            <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
+          </Routes>
+          {loggedIn && <Footer />}
+          <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
+          <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit} />
+          <PopupWithForm title='Вы уверены?' name='delete' buttonText="Да">
           // тут надо доделать
-        </PopupWithForm>
-        <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
-        <ImagePopup card={selectedCard} onClose={closeAllPopups} />
-        <InfoTooltip
-          isOpen={isInfoTooltipOpen}
-          onClose={closeAllPopups}
-          message={infoTooltipMessage}
-          isSuccessful={isSuccessful}
-        />
-      </div>
-    </CurrentUserContext.Provider>
+          </PopupWithForm>
+          <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
+          <ImagePopup card={selectedCard} onClose={closeAllPopups} />
+          <InfoTooltip
+            isOpen={isInfoTooltipOpen}
+            onClose={closeAllPopups}
+            message={infoTooltipMessage}
+            isSuccessful={isSuccessful}
+          />
+        </div>
+      </CurrentUserContext.Provider>
     </AppContext.Provider>
   );
 

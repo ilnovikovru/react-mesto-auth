@@ -3,10 +3,10 @@ import PopupWithForm from './PopupWithForm';
 import { useForm } from '../hooks/useForm';
 
 function AddPlacePopup(props) {
-  const { values, handleChange, setValues } = useForm({name: '', link: ''});
+  const { values, handleChange, setValues } = useForm({ name: '', link: '' });
 
   useEffect(() => {
-    setValues({name: '', link: ''});
+    setValues({ name: '', link: '' });
   }, [props.isOpen, setValues]);
 
   const handleSubmit = (e) => {

@@ -1,24 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import { useForm } from '../hooks/useForm';
 
 function Register({ onRegister }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
+  const { values, handleChange } = useForm({ email: '', password: '' });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!values.email || !values.password) {
       return;
     }
-    onRegister(email, password);
+    onRegister(values.email, values.password);
   };
 
   return (
@@ -26,8 +18,26 @@ function Register({ onRegister }) {
       <div className="sign__container">
         <h2 className="sign__title">Регистрация</h2>
         <form id="form_login" className="sign__form" name="login" onSubmit={handleSubmit}>
-          <input id="input-email" placeholder="Email" className="sign__input" name="email" type="email" value={email} onChange={handleEmailChange} required />
-          <input id="input-password" placeholder="Пароль" className="sign__input" name="password" type="password" value={password} onChange={handlePasswordChange} required />
+          <input 
+            id="input-email" 
+            placeholder="Email" 
+            className="sign__input" 
+            name="email" 
+            type="email" 
+            value={values.email} 
+            onChange={handleChange} 
+            required 
+          />
+          <input 
+            id="input-password" 
+            placeholder="Пароль" 
+            className="sign__input" 
+            name="password" 
+            type="password" 
+            value={values.password} 
+            onChange={handleChange} 
+            required 
+          />
           <button type="submit" form="form_login" className="sign__button">Зарегистрироваться</button>
           <Link to="/sign-in" className="sign__caption">Уже зарегистрированы? Войти</Link>
         </form>
